@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Flappy Bird Neural Network", "Flappy Bird Neural Network\Flappy Bird Neural Network.csproj", "{668C0EF1-32A3-49DE-91B3-EF0920E2AC47}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{668C0EF1-32A3-49DE-91B3-EF0920E2AC47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{668C0EF1-32A3-49DE-91B3-EF0920E2AC47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{668C0EF1-32A3-49DE-91B3-EF0920E2AC47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{668C0EF1-32A3-49DE-91B3-EF0920E2AC47}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C63DC3B-DC20-436E-8B78-84924F4D740A}
+	EndGlobalSection
+EndGlobal
