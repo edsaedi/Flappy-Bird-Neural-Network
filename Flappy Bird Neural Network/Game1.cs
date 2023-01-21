@@ -9,6 +9,9 @@ namespace Flappy_Bird_Neural_Network
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Bird yellowBird;
+        private Bird blueBird;
+        private Bird redBird;
 
         public Game1()
         {
@@ -20,13 +23,16 @@ namespace Flappy_Bird_Neural_Network
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-
+            _graphics.PreferredBackBufferWidth = 480;
+            _graphics.PreferredBackBufferHeight = 640;
+            _graphics.ApplyChanges();
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
+            
 
             //We load the spritesheet
             Texture2D spriteSheet = Content.Load<Texture2D>("Flappy Bird Sprite Sheet");
@@ -48,6 +54,10 @@ namespace Flappy_Bird_Neural_Network
             redSourceRectangle[0] = new Rectangle(115, 381, 17, 12);
             redSourceRectangle[1] = new Rectangle(115, 407, 17, 12);
             redSourceRectangle[2] = new Rectangle(115, 433, 17, 12);
+
+            yellowBird = new Bird(spriteSheet, new Vector2(10, 10), yellowSourceRectangle, 0, new Vector2(5, 5));
+            blueBird = new Bird(spriteSheet, new Vector2(0, 0), blueSourceRectangle, 0, new Vector2(2, 2));
+            redBird = new Bird(spriteSheet, new Vector2(100, 100), redSourceRectangle, 0, new Vector2(10, 10));
         }
 
         protected override void Update(GameTime gameTime)
@@ -65,7 +75,13 @@ namespace Flappy_Bird_Neural_Network
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
+            _spriteBatch.Begin();
 
+            yellowBird.Animate(_spriteBatch);
+            blueBird.Animate(_spriteBatch);
+            redBird.Animate(_spriteBatch);
+
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

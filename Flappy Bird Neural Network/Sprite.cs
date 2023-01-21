@@ -12,7 +12,7 @@ namespace Flappy_Bird_Neural_Network
     {
         Texture2D texture;
         Vector2 position;
-        Rectangle? sourceRectangle;
+        protected abstract Rectangle? sourceRectangle { get; }
         Color color;
         float rotation;
         Vector2 origin;
@@ -27,13 +27,12 @@ namespace Flappy_Bird_Neural_Network
         : this(texture, position, color, Vector2.One) { }
 
         public Sprite(Texture2D texture, Vector2 position, Color color, Vector2 scale)
-       : this(texture, position, null, color, 0f, position, scale, SpriteEffects.None, 0) { }
+       : this(texture, position, color, 0f, position, scale, SpriteEffects.None, 0) { }
 
-        public Sprite(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
+        public Sprite(Texture2D texture, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
         {
             this.texture = texture;
             this.position = position;
-            this.sourceRectangle = sourceRectangle;
             this.color = color;
             this.rotation = rotation;
             this.origin = origin;
