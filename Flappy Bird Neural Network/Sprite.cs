@@ -11,7 +11,7 @@ namespace Flappy_Bird_Neural_Network
     public abstract class Sprite
     {
         Texture2D texture;
-        Vector2 position;
+        protected Vector2 position;
         protected abstract Rectangle? sourceRectangle { get; }
         Color color;
         float rotation;
