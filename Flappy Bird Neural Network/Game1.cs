@@ -9,6 +9,8 @@ namespace Flappy_Bird_Neural_Network
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Sprite backgroundLeft;
+        private Sprite backgroundRight;
         private Bird yellowBird;
         private Bird blueBird;
         private Bird redBird;
@@ -41,7 +43,6 @@ namespace Flappy_Bird_Neural_Network
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-
             //We load the spritesheet
             Texture2D spriteSheet = Content.Load<Texture2D>("Flappy Bird Sprite Sheet");
 
@@ -67,8 +68,11 @@ namespace Flappy_Bird_Neural_Network
             redSourceRectangle[1] = new Rectangle((int)(115 * scale), (int)(407 * scale), birdWidth, birdHeight);
             redSourceRectangle[2] = new Rectangle((int)(115 * scale), (int)(433 * scale), birdWidth, birdHeight);
 
-            yellowBird = new Bird(spriteSheet, new Vector2((GraphicsDevice.Viewport.Width - birdWidth) / 2, (GraphicsDevice.Viewport.Height - birdHeight) / 2), yellowSourceRectangle, 0, Vector2.One);
+            yellowBird = new Bird(spriteSheet, new Vector2((GraphicsDevice.Viewport.Width - birdWidth) / 2, (GraphicsDevice.Viewport.Height - birdHeight) / 2), yellowSourceRectangle, 0, Vector2.One, new TimeSpan());
             selectedBird = yellowBird;
+
+            backgroundLeft = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
+            backgroundRight = new Sprite(spriteSheet, new Vector2(375.25f, 0), new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
         }
 
         protected override void Update(GameTime gameTime)
@@ -96,6 +100,10 @@ namespace Flappy_Bird_Neural_Network
 
             // TODO: Add your drawing code here
             _spriteBatch.Begin();
+
+            //This is for the background
+            backgroundLeft.Draw(_spriteBatch);
+            backgroundRight.Draw(_spriteBatch);
 
             selectedBird.Animate(_spriteBatch, gameStarted, gameTime);
 

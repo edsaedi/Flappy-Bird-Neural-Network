@@ -8,42 +8,26 @@ using System.Threading.Tasks;
 
 namespace Flappy_Bird_Neural_Network
 {
-    public abstract class Sprite
+    public class Sprite : SpriteBase
     {
-        Texture2D texture;
-        protected Vector2 position;
-        protected abstract Rectangle? sourceRectangle { get; }
-        Color color;
-        float rotation;
-        Vector2 origin;
-        Vector2 scale;
-        SpriteEffects effects;
-        float layerDepth;
+        protected override Rectangle? sourceRectangle { get; }
 
         public Sprite(Texture2D texture, Vector2 position)
-        : this(texture, position, Color.White) { }
+            : base(texture, position) { }
 
         public Sprite(Texture2D texture, Vector2 position, Color color)
-        : this(texture, position, color, Vector2.One) { }
+            : base(texture, position, color) { }
 
         public Sprite(Texture2D texture, Vector2 position, Color color, Vector2 scale)
-       : this(texture, position, color, 0f, position, scale, SpriteEffects.None, 0) { }
+            : base(texture, position, color, scale) { }
 
         public Sprite(Texture2D texture, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
-        {
-            this.texture = texture;
-            this.position = position;
-            this.color = color;
-            this.rotation = rotation;
-            this.origin = origin;
-            this.scale = scale;
-            this.effects = effects;
-            this.layerDepth = layerDepth;
-        }
+            : base(texture, position, color, rotation, origin, scale, effects, layerDepth) { }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public Sprite(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, float rotation, Vector2 scale)
+           : base(texture, position, Color.White, rotation, Vector2.Zero, scale, SpriteEffects.None, 0)
         {
-            spriteBatch.Draw(texture, position, sourceRectangle, color, rotation, origin, scale, effects, layerDepth);
+            this.sourceRectangle = sourceRectangle;
         }
     }
 }
