@@ -20,6 +20,8 @@ namespace Flappy_Bird_Neural_Network
         SpriteEffects effects;
         float layerDepth;
 
+        internal Rectangle hitbox => new Rectangle((int)position.X, (int)position.Y, (int)(sourceRectangle.Value.Width * scale.X), (int)(sourceRectangle.Value.Height * scale.Y));
+
         public SpriteBase(Texture2D texture, Vector2 position)
         : this(texture, position, Color.White) { }
 
@@ -27,7 +29,7 @@ namespace Flappy_Bird_Neural_Network
         : this(texture, position, color, Vector2.One) { }
 
         public SpriteBase(Texture2D texture, Vector2 position, Color color, Vector2 scale)
-       : this(texture, position, color, 0f, position, scale, SpriteEffects.None, 0) { }
+        : this(texture, position, color, 0f, position, scale, SpriteEffects.None, 0) { }
 
         public SpriteBase(Texture2D texture, Vector2 position, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
         {

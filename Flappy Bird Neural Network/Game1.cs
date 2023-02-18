@@ -11,6 +11,9 @@ namespace Flappy_Bird_Neural_Network
         private SpriteBatch _spriteBatch;
         private Sprite backgroundLeft;
         private Sprite backgroundRight;
+        private MovingSprite scrollingBottomLeft;
+        private MovingSprite scrollingBottomMiddle;
+        private MovingSprite scrollingBottomRight;
         private Bird yellowBird;
         private Bird blueBird;
         private Bird redBird;
@@ -18,6 +21,7 @@ namespace Flappy_Bird_Neural_Network
 
         private bool gameStarted;
         private bool previousStateDown;
+        private Vector2 scrollingSpeed = new Vector2(-3, 0);
 
         public Game1()
         {
@@ -73,6 +77,10 @@ namespace Flappy_Bird_Neural_Network
 
             backgroundLeft = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
             backgroundRight = new Sprite(spriteSheet, new Vector2(375.25f, 0), new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
+
+            scrollingBottomLeft = new MovingSprite(spriteSheet, new Vector2(0, 525), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
+            scrollingBottomMiddle = new MovingSprite(spriteSheet, new Vector2(294, 525), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
+            scrollingBottomRight = new MovingSprite(spriteSheet, new Vector2(588, 525), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
         }
 
         protected override void Update(GameTime gameTime)
@@ -92,6 +100,23 @@ namespace Flappy_Bird_Neural_Network
             }
 
             base.Update(gameTime);
+
+            if (scrollingBottomLeft.hitbox.Right < 0)
+            {
+                scrollingBottomLeft.SetPosition(new Vector2(scrollingBottomRight.hitbox.Right, 525));
+            }
+            if (scrollingBottomMiddle.hitbox.Right < 0)
+            {
+                scrollingBottomMiddle.SetPosition(new Vector2(scrollingBottomLeft.hitbox.Right, 525));
+            }
+            if (scrollingBottomRight.hitbox.Right < 0)
+            {
+                scrollingBottomRight.SetPosition(new Vector2(scrollingBottomMiddle.hitbox.Right, 525));
+            }
+
+            scrollingBottomLeft.Update();
+            scrollingBottomMiddle.Update();
+            scrollingBottomRight.Update();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -104,6 +129,10 @@ namespace Flappy_Bird_Neural_Network
             //This is for the background
             backgroundLeft.Draw(_spriteBatch);
             backgroundRight.Draw(_spriteBatch);
+
+            scrollingBottomLeft.Draw(_spriteBatch);
+            scrollingBottomMiddle.Draw(_spriteBatch);
+            scrollingBottomRight.Draw(_spriteBatch);
 
             selectedBird.Animate(_spriteBatch, gameStarted, gameTime);
 
