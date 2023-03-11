@@ -35,25 +35,27 @@ namespace Flappy_Bird_Neural_Network
             return true;
         }
 
-        public void Animate(SpriteBatch spriteBatch, bool gameStarted, GameTime gameTime)
+        public void Animate(SpriteBatch spriteBatch, bool gameStarted, bool gameOver, GameTime gameTime)
         {
             birdFlapTime += gameTime.ElapsedGameTime;
 
-            if (birdFlapTime.TotalMilliseconds > 100)
+            if (!gameOver)
             {
-
-                if (currentIndex == sourceRectangles.Length - 1)
+                if (birdFlapTime.TotalMilliseconds > 100)
                 {
-                    currentIndex = 0;
-                }
-                else
-                {
-                    currentIndex++;
-                }
 
-                birdFlapTime = TimeSpan.Zero;
+                    if (currentIndex == sourceRectangles.Length - 1)
+                    {
+                        currentIndex = 0;
+                    }
+                    else
+                    {
+                        currentIndex++;
+                    }
+
+                    birdFlapTime = TimeSpan.Zero;
+                }
             }
-
             if (gameStarted)
             {
                 //Gravity
@@ -67,6 +69,11 @@ namespace Flappy_Bird_Neural_Network
             }
 
             Draw(spriteBatch);
+        }
+
+        public bool Collide(Rectangle objectHitbox)
+        {
+            return hitbox.Intersects(objectHitbox);
         }
     }
 }
