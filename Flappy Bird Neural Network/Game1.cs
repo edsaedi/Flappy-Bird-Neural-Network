@@ -9,21 +9,30 @@ namespace Flappy_Bird_Neural_Network
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+
         private Sprite backgroundLeft;
         private Sprite backgroundRight;
+
         private MovingSprite scrollingBottomLeft;
         private MovingSprite scrollingBottomMiddle;
         private MovingSprite scrollingBottomRight;
         private Rectangle bottomOfScreen;
+
         private Bird yellowBird;
         private Bird blueBird;
         private Bird redBird;
         private Bird selectedBird;
 
+        private (MovingSprite topPipe, MovingSprite bottomPipe)[] pipes;
+
+        private Texture2D spriteSheet;
+
         private bool gameStarted;
         private bool previousStateDown;
         private bool gameOver;
         private Vector2 scrollingSpeed = new Vector2(-3, 0);
+        private int floorYValue = 525;
+        private int bufferHeight = 110;
 
         public Game1()
         {
@@ -51,7 +60,7 @@ namespace Flappy_Bird_Neural_Network
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             //We load the spritesheet
-            Texture2D spriteSheet = Content.Load<Texture2D>("Flappy Bird Sprite Sheet");
+            spriteSheet = Content.Load<Texture2D>("Flappy Bird Sprite Sheet");
 
             Rectangle?[] yellowSourceRectangle = new Rectangle?[3];
 
@@ -81,12 +90,17 @@ namespace Flappy_Bird_Neural_Network
             backgroundLeft = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
             backgroundRight = new Sprite(spriteSheet, new Vector2(375.25f, 0), new Rectangle(0, 0, 501, 896), 0f, new Vector2(0.75f, 0.75f));
 
-            int yPosition = 525;
-            scrollingBottomLeft = new MovingSprite(spriteSheet, new Vector2(0, yPosition), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
-            scrollingBottomMiddle = new MovingSprite(spriteSheet, new Vector2(294, yPosition), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
-            scrollingBottomRight = new MovingSprite(spriteSheet, new Vector2(588, yPosition), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
+            scrollingBottomLeft = new MovingSprite(spriteSheet, new Vector2(0, floorYValue), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
+            scrollingBottomMiddle = new MovingSprite(spriteSheet, new Vector2(294, floorYValue), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
+            scrollingBottomRight = new MovingSprite(spriteSheet, new Vector2(588, floorYValue), new Rectangle(1022, 0, 588, 196), new Vector2(0.5f, 0.75f), scrollingSpeed);
 
-            bottomOfScreen = new Rectangle(0, yPosition, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - yPosition);
+            bottomOfScreen = new Rectangle(0, floorYValue, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - floorYValue);
+
+            pipes = new (MovingSprite, MovingSprite)[3];
+
+            pipes[0] = PairedPipeGenerator(3, 0);
+            pipes[1] = PairedPipeGenerator(6, GraphicsDevice.Viewport.Width / 2);
+            pipes[2] = PairedPipeGenerator(1, GraphicsDevice.Viewport.Width * 2);
         }
 
         protected override void Update(GameTime gameTime)
@@ -100,8 +114,21 @@ namespace Flappy_Bird_Neural_Network
             {
                 gameOver = true;
             }
+            for (var i = 0; i < pipes.Length; i++)
+            {
+                if (selectedBird.Collide(pipes[i].topPipe.hitbox))
+                {
+                    gameOver = true;
+                    break;
+                }
+                if (selectedBird.Collide(pipes[i].bottomPipe.hitbox))
+                {
+                    gameOver = true;
+                    break;
+                }
+            }
 
-            if(gameOver)
+            if (gameOver)
             {
                 gameStarted = false;
                 GameOver();
@@ -128,6 +155,12 @@ namespace Flappy_Bird_Neural_Network
             scrollingBottomRight.Draw(_spriteBatch);
 
             selectedBird.Animate(_spriteBatch, gameStarted, gameOver, gameTime);
+
+            for (var i = 0; i < pipes.Length; i++)
+            {
+                pipes[i].topPipe.Draw(_spriteBatch);
+                pipes[i].bottomPipe.Draw(_spriteBatch);
+            }
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -165,6 +198,34 @@ namespace Flappy_Bird_Neural_Network
             scrollingBottomLeft.Update();
             scrollingBottomMiddle.Update();
             scrollingBottomRight.Update();
+
+            for (var i = 0; i < pipes.Length; i++)
+            {
+                pipes[i].topPipe.Update();
+                pipes[i].bottomPipe.Update();
+            }
+        }
+
+        //Upper pipe size can be from 1-9
+        public (MovingSprite topPipe, MovingSprite bottomPipe) PairedPipeGenerator(int upperPipeSize, int xPosition)
+        {
+            float xScale = 0.9f;
+            int pipeSpireSheetHeight = 560;
+
+            int range = floorYValue - (selectedBird.hitbox.Height + bufferHeight);
+            float discreteUnit = range / 10;
+            float upperHeight = discreteUnit * upperPipeSize;
+            float bottomHeight = range - upperHeight;
+
+            float yUpperScale = upperHeight / pipeSpireSheetHeight;
+            float yBottomScale = bottomHeight / pipeSpireSheetHeight;
+
+            Vector2 speed = new Vector2(-1, 0);
+
+            MovingSprite topPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, 0), new Rectangle(196, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yUpperScale), speed);
+            MovingSprite bottomPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, floorYValue - bottomHeight), new Rectangle(294, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yBottomScale), speed);
+
+            return (topPipe, bottomPipe);
         }
     }
 }
