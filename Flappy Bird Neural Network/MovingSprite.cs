@@ -26,9 +26,14 @@ namespace Flappy_Bird_Neural_Network
             position += speed;
         }
 
-        public void SetPosition(Vector2 position) 
+        public void SetPosition(Vector2 position)
         {
-            base.position = position;        
+            base.position = position;
+        }
+
+        public void SetXPosition(float xPosition)
+        {
+            base.position.X = xPosition;
         }
     }
 }

@@ -25,6 +25,11 @@ namespace Flappy_Bird_Neural_Network
 
         private (MovingSprite topPipe, MovingSprite bottomPipe)[] pipes;
 
+        //Labels
+        private Sprite gameOverLabel;
+
+
+
         private Texture2D spriteSheet;
 
         private bool gameStarted;
@@ -96,11 +101,12 @@ namespace Flappy_Bird_Neural_Network
 
             bottomOfScreen = new Rectangle(0, floorYValue, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - floorYValue);
 
-            pipes = new (MovingSprite, MovingSprite)[3];
+            pipes = new (MovingSprite, MovingSprite)[2];
+            RestartGame();
 
-            pipes[0] = PairedPipeGenerator(3, 0);
-            pipes[1] = PairedPipeGenerator(6, GraphicsDevice.Viewport.Width / 2);
-            pipes[2] = PairedPipeGenerator(1, GraphicsDevice.Viewport.Width * 2);
+            //Label creation
+            gameOverLabel = new Sprite(spriteSheet, new Vector2((GraphicsDevice.Viewport.Width - 336) / 2, GraphicsDevice.Viewport.Height / 2 - 125), new Rectangle(1382, 206, 336, 74), 0, Vector2.One);
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -110,33 +116,95 @@ namespace Flappy_Bird_Neural_Network
 
             base.Update(gameTime);
 
-            if (selectedBird.Collide(bottomOfScreen))
-            {
-                gameOver = true;
-            }
-            for (var i = 0; i < pipes.Length; i++)
-            {
-                if (selectedBird.Collide(pipes[i].topPipe.hitbox))
-                {
-                    gameOver = true;
-                    break;
-                }
-                if (selectedBird.Collide(pipes[i].bottomPipe.hitbox))
-                {
-                    gameOver = true;
-                    break;
-                }
-            }
+            //Collided logic
+            gameOver = isGameOver();
 
-            if (gameOver)
+            //Game Run logic
+            if (!gameOver)
+            {
+                GameRun(gameStarted);
+            }
+            //Gameover Logic
+            else
             {
                 gameStarted = false;
                 GameOver();
             }
-            else
+        }
+
+        public void GameRun(bool isGameStarted)
+        {
+            //Scrolling logic
+            if (scrollingBottomLeft.hitbox.Right < 0)
             {
-                GameRun();
+                scrollingBottomLeft.SetPosition(new Vector2(scrollingBottomRight.hitbox.Right, 525));
             }
+            if (scrollingBottomMiddle.hitbox.Right < 0)
+            {
+                scrollingBottomMiddle.SetPosition(new Vector2(scrollingBottomLeft.hitbox.Right, 525));
+            }
+            if (scrollingBottomRight.hitbox.Right < 0)
+            {
+                scrollingBottomRight.SetPosition(new Vector2(scrollingBottomMiddle.hitbox.Right, 525));
+            }
+
+            scrollingBottomLeft.Update();
+            scrollingBottomMiddle.Update();
+            scrollingBottomRight.Update();
+
+            //Jumping Logic    
+            if (Keyboard.GetState().IsKeyUp(Keys.Space))
+            {
+                previousStateDown = false;
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.Space) && !previousStateDown)
+            {
+                previousStateDown = true;
+                gameStarted = selectedBird.Jump();
+            }
+
+            if (isGameStarted)
+            {
+                //Pipe updating logic
+                for (var i = 0; i < pipes.Length; i++)
+                {
+                    if (pipes[i].topPipe.hitbox.Right < 0)
+                    {
+                        pipes[i].topPipe.SetXPosition(GraphicsDevice.Viewport.Width);
+                        pipes[i].bottomPipe.SetXPosition(GraphicsDevice.Viewport.Width);
+                    }
+                    pipes[i].topPipe.Update();
+                    pipes[i].bottomPipe.Update();
+                }
+            }
+        }
+
+        public bool isGameOver()
+        {
+            //Ground collision
+            if (selectedBird.Collide(bottomOfScreen))
+            {
+                return true;
+            }
+
+            for (var i = 0; i < pipes.Length; i++)
+            {
+                if (selectedBird.Collide(pipes[i].topPipe.hitbox))
+                {
+                    return true;
+                }
+                if (selectedBird.Collide(pipes[i].bottomPipe.hitbox))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public void GameOver()
+        {
+
         }
 
         protected override void Draw(GameTime gameTime)
@@ -162,51 +230,22 @@ namespace Flappy_Bird_Neural_Network
                 pipes[i].bottomPipe.Draw(_spriteBatch);
             }
 
+            if (gameOver)
+            {
+                GameOverDraw();
+            }
+
             _spriteBatch.End();
             base.Draw(gameTime);
         }
 
-        public void GameOver()
+        public void GameOverDraw()
         {
-
-        }
-        public void GameRun()
-        {
-            if (Keyboard.GetState().IsKeyUp(Keys.Space))
-            {
-                previousStateDown = false;
-            }
-            else if (Keyboard.GetState().IsKeyDown(Keys.Space) && !previousStateDown)
-            {
-                previousStateDown = true;
-                gameStarted = selectedBird.Jump();
-            }
-
-            if (scrollingBottomLeft.hitbox.Right < 0)
-            {
-                scrollingBottomLeft.SetPosition(new Vector2(scrollingBottomRight.hitbox.Right, 525));
-            }
-            if (scrollingBottomMiddle.hitbox.Right < 0)
-            {
-                scrollingBottomMiddle.SetPosition(new Vector2(scrollingBottomLeft.hitbox.Right, 525));
-            }
-            if (scrollingBottomRight.hitbox.Right < 0)
-            {
-                scrollingBottomRight.SetPosition(new Vector2(scrollingBottomMiddle.hitbox.Right, 525));
-            }
-
-            scrollingBottomLeft.Update();
-            scrollingBottomMiddle.Update();
-            scrollingBottomRight.Update();
-
-            for (var i = 0; i < pipes.Length; i++)
-            {
-                pipes[i].topPipe.Update();
-                pipes[i].bottomPipe.Update();
-            }
+            gameOverLabel.Draw(_spriteBatch);
         }
 
         //Upper pipe size can be from 1-9
+        //returns the MovingSprite for topPipe and bottomPipe
         public (MovingSprite topPipe, MovingSprite bottomPipe) PairedPipeGenerator(int upperPipeSize, int xPosition)
         {
             float xScale = 0.9f;
@@ -220,12 +259,16 @@ namespace Flappy_Bird_Neural_Network
             float yUpperScale = upperHeight / pipeSpireSheetHeight;
             float yBottomScale = bottomHeight / pipeSpireSheetHeight;
 
-            Vector2 speed = new Vector2(-1, 0);
-
-            MovingSprite topPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, 0), new Rectangle(196, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yUpperScale), speed);
-            MovingSprite bottomPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, floorYValue - bottomHeight), new Rectangle(294, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yBottomScale), speed);
+            MovingSprite topPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, 0), new Rectangle(196, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yUpperScale), scrollingSpeed);
+            MovingSprite bottomPipe = new MovingSprite(spriteSheet, new Vector2(xPosition, floorYValue - bottomHeight), new Rectangle(294, 1130, 92, pipeSpireSheetHeight), new Vector2(xScale, yBottomScale), scrollingSpeed);
 
             return (topPipe, bottomPipe);
+        }
+
+        public void RestartGame()
+        {
+            pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
+            pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
         }
     }
 }
