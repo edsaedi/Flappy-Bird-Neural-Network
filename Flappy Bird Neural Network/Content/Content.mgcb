@@ -25,3 +25,10 @@
 /processorParam:TextureFormat=Color
 /build:Flappy Bird Sprite Sheet.png
 
+#begin Sprite Font.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Sprite Font.spritefont
+

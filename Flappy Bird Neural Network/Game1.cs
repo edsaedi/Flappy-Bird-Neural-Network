@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Flappy_Bird_Neural_Network
 {
@@ -27,7 +29,8 @@ namespace Flappy_Bird_Neural_Network
 
         //Labels
         private Sprite gameOverLabel;
-
+        private List<Sprite> scoreLabel;
+        private Sprite[] scoreDigits;
 
 
         private Texture2D spriteSheet;
@@ -38,6 +41,13 @@ namespace Flappy_Bird_Neural_Network
         private Vector2 scrollingSpeed = new Vector2(-3, 0);
         private int floorYValue = 525;
         private int bufferHeight = 110;
+
+        private int score = 0;
+        private bool passedPipe1 = false;
+        private bool passedPipe2 = false;
+
+        //Testing spriteFont
+        private SpriteFont spriteFont;
 
         public Game1()
         {
@@ -107,6 +117,19 @@ namespace Flappy_Bird_Neural_Network
             //Label creation
             gameOverLabel = new Sprite(spriteSheet, new Vector2((GraphicsDevice.Viewport.Width - 336) / 2, GraphicsDevice.Viewport.Height / 2 - 125), new Rectangle(1382, 206, 336, 74), 0, Vector2.One);
 
+            spriteFont = Content.Load<SpriteFont>("Sprite Font");
+
+            scoreDigits = new Sprite[10];
+            scoreDigits[0] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1736, 210, 42, 63), 0, Vector2.One);
+            scoreDigits[1] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(476, 1592, 28, 78), 0, Vector2.One);
+            scoreDigits[2] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1022, 560, 42, 63), 0, Vector2.One);
+            scoreDigits[3] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1071, 560, 42, 63), 0, Vector2.One);
+            scoreDigits[4] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1120, 560, 42, 63), 0, Vector2.One);
+            scoreDigits[5] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1169, 560, 42, 63), 0, Vector2.One);
+            scoreDigits[6] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1022, 644, 42, 63), 0, Vector2.One);
+            scoreDigits[7] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1071, 644, 42, 63), 0, Vector2.One);
+            scoreDigits[8] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1120, 644, 42, 63), 0, Vector2.One);
+            scoreDigits[9] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1169, 644, 42, 63), 0, Vector2.One);
         }
 
         protected override void Update(GameTime gameTime)
@@ -163,6 +186,17 @@ namespace Flappy_Bird_Neural_Network
                 gameStarted = selectedBird.Jump();
             }
 
+            //Clicking Logic
+            if (Mouse.GetState().LeftButton == ButtonState.Released)
+            {
+                previousStateDown = false;
+            }
+            else if (Mouse.GetState().LeftButton == ButtonState.Pressed && !previousStateDown)
+            {
+                previousStateDown = true;
+                gameStarted = selectedBird.Jump();
+            }
+
             if (isGameStarted)
             {
                 //Pipe updating logic
@@ -172,13 +206,33 @@ namespace Flappy_Bird_Neural_Network
                     {
                         pipes[i].topPipe.SetXPosition(GraphicsDevice.Viewport.Width);
                         pipes[i].bottomPipe.SetXPosition(GraphicsDevice.Viewport.Width);
+                        if (i == 0)
+                        {
+                            passedPipe1 = false;
+                        }
+                        else
+                        {
+                            passedPipe2 = false;
+                        }
                     }
                     pipes[i].topPipe.Update();
                     pipes[i].bottomPipe.Update();
                 }
             }
+
+            if (!passedPipe1 && (pipes[0].topPipe.hitbox.Left < selectedBird.hitbox.Left))
+            {
+                score++;
+                passedPipe1 = true;
+            }
+            if(!passedPipe2 && (pipes[1].topPipe.hitbox.Left < selectedBird.hitbox.Left))
+            {
+                score++;
+                passedPipe2 = true;
+            }
         }
 
+        //Checks to see if the bird dies
         public bool isGameOver()
         {
             //Ground collision
@@ -187,6 +241,7 @@ namespace Flappy_Bird_Neural_Network
                 return true;
             }
 
+            //Pipe Collision
             for (var i = 0; i < pipes.Length; i++)
             {
                 if (selectedBird.Collide(pipes[i].topPipe.hitbox))
@@ -194,6 +249,10 @@ namespace Flappy_Bird_Neural_Network
                     return true;
                 }
                 if (selectedBird.Collide(pipes[i].bottomPipe.hitbox))
+                {
+                    return true;
+                }
+                if((selectedBird.hitbox.Top < 0) && (selectedBird.hitbox.Left > pipes[i].topPipe.hitbox.Left) && (selectedBird.hitbox.Left < pipes[i].topPipe.hitbox.Right))
                 {
                     return true;
                 }
@@ -235,6 +294,10 @@ namespace Flappy_Bird_Neural_Network
                 GameOverDraw();
             }
 
+
+            _spriteBatch.DrawString(spriteFont, score.ToString(), new Vector2(10, 10), Color.Black);
+
+
             _spriteBatch.End();
             base.Draw(gameTime);
         }
@@ -269,6 +332,11 @@ namespace Flappy_Bird_Neural_Network
         {
             pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
             pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
+        }
+
+        public void DisplayScore()
+        {
+
         }
     }
 }
