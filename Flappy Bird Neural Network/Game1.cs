@@ -30,7 +30,7 @@ namespace Flappy_Bird_Neural_Network
         //Labels
         private Sprite gameOverLabel;
         private List<Sprite> scoreLabel;
-        private Sprite[] scoreDigits;
+        private Rectangle[] scoreDigits;
 
 
         private Texture2D spriteSheet;
@@ -46,8 +46,12 @@ namespace Flappy_Bird_Neural_Network
         private bool passedPipe1 = false;
         private bool passedPipe2 = false;
 
+        private Button restartButton;
+
+
         //Testing spriteFont
         private SpriteFont spriteFont;
+
 
         public Game1()
         {
@@ -112,6 +116,9 @@ namespace Flappy_Bird_Neural_Network
             bottomOfScreen = new Rectangle(0, floorYValue, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height - floorYValue);
 
             pipes = new (MovingSprite, MovingSprite)[2];
+
+            restartButton = new Button(spriteSheet, new Vector2((GraphicsDevice.Viewport.Width - 182) / 2, GraphicsDevice.Viewport.Height / 2 - 45), new Rectangle(1239, 413, 182, 101), Vector2.One);
+
             RestartGame();
 
             //Label creation
@@ -119,18 +126,20 @@ namespace Flappy_Bird_Neural_Network
 
             spriteFont = Content.Load<SpriteFont>("Sprite Font");
 
-            scoreDigits = new Sprite[10];
-            scoreDigits[0] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1736, 210, 42, 63), 0, Vector2.One);
-            scoreDigits[1] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(476, 1592, 28, 78), 0, Vector2.One);
-            scoreDigits[2] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1022, 560, 42, 63), 0, Vector2.One);
-            scoreDigits[3] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1071, 560, 42, 63), 0, Vector2.One);
-            scoreDigits[4] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1120, 560, 42, 63), 0, Vector2.One);
-            scoreDigits[5] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1169, 560, 42, 63), 0, Vector2.One);
-            scoreDigits[6] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1022, 644, 42, 63), 0, Vector2.One);
-            scoreDigits[7] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1071, 644, 42, 63), 0, Vector2.One);
-            scoreDigits[8] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1120, 644, 42, 63), 0, Vector2.One);
-            scoreDigits[9] = new Sprite(spriteSheet, Vector2.Zero, new Rectangle(1169, 644, 42, 63), 0, Vector2.One);
+            scoreDigits = new Rectangle[] {
+                new Rectangle(1736, 210, 42, 63),
+                new Rectangle(476, 1592, 28, 78),
+                new Rectangle(1071, 644, 42, 63),
+                new Rectangle(1120, 644, 42, 63),
+                new Rectangle(1169, 644, 42, 63),
+                new Rectangle(1169, 560, 42, 63),
+                new Rectangle(1022, 644, 42, 63),
+                new Rectangle(1071, 644, 42, 63),
+                new Rectangle(1120, 644, 42, 63),
+                new Rectangle(1169, 644, 42, 63)
+            };
         }
+
 
         protected override void Update(GameTime gameTime)
         {
@@ -139,13 +148,11 @@ namespace Flappy_Bird_Neural_Network
 
             base.Update(gameTime);
 
-            //Collided logic
-            gameOver = isGameOver();
-
             //Game Run logic
             if (!gameOver)
             {
                 GameRun(gameStarted);
+                gameOver = birdCollided();
             }
             //Gameover Logic
             else
@@ -187,15 +194,11 @@ namespace Flappy_Bird_Neural_Network
             }
 
             //Clicking Logic
-            if (Mouse.GetState().LeftButton == ButtonState.Released)
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !previousStateDown)
             {
-                previousStateDown = false;
-            }
-            else if (Mouse.GetState().LeftButton == ButtonState.Pressed && !previousStateDown)
-            {
-                previousStateDown = true;
                 gameStarted = selectedBird.Jump();
             }
+            previousStateDown = Mouse.GetState().LeftButton != ButtonState.Released;
 
             if (isGameStarted)
             {
@@ -225,7 +228,7 @@ namespace Flappy_Bird_Neural_Network
                 score++;
                 passedPipe1 = true;
             }
-            if(!passedPipe2 && (pipes[1].topPipe.hitbox.Left < selectedBird.hitbox.Left))
+            if (!passedPipe2 && (pipes[1].topPipe.hitbox.Left < selectedBird.hitbox.Left))
             {
                 score++;
                 passedPipe2 = true;
@@ -233,7 +236,7 @@ namespace Flappy_Bird_Neural_Network
         }
 
         //Checks to see if the bird dies
-        public bool isGameOver()
+        public bool birdCollided()
         {
             //Ground collision
             if (selectedBird.Collide(bottomOfScreen))
@@ -252,7 +255,7 @@ namespace Flappy_Bird_Neural_Network
                 {
                     return true;
                 }
-                if((selectedBird.hitbox.Top < 0) && (selectedBird.hitbox.Left > pipes[i].topPipe.hitbox.Left) && (selectedBird.hitbox.Left < pipes[i].topPipe.hitbox.Right))
+                if ((selectedBird.hitbox.Top < 0) && (selectedBird.hitbox.Left > pipes[i].topPipe.hitbox.Left) && (selectedBird.hitbox.Left < pipes[i].topPipe.hitbox.Right))
                 {
                     return true;
                 }
@@ -263,7 +266,11 @@ namespace Flappy_Bird_Neural_Network
 
         public void GameOver()
         {
-
+            if (restartButton.Clicked(Mouse.GetState()))
+            {
+                gameOver = false;
+                RestartGame();
+            }
         }
 
         protected override void Draw(GameTime gameTime)
@@ -305,6 +312,7 @@ namespace Flappy_Bird_Neural_Network
         public void GameOverDraw()
         {
             gameOverLabel.Draw(_spriteBatch);
+            restartButton.Draw(_spriteBatch);
         }
 
         //Upper pipe size can be from 1-9
@@ -332,6 +340,10 @@ namespace Flappy_Bird_Neural_Network
         {
             pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
             pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
+            selectedBird.ResetPosition();
+            score = 0;
+            passedPipe1 = false;
+            passedPipe2 = false;
         }
 
         public void DisplayScore()

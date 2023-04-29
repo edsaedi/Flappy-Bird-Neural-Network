@@ -13,7 +13,7 @@ namespace Flappy_Bird_Neural_Network
         Texture2D texture;
         protected Vector2 position;
         protected abstract Rectangle? sourceRectangle { get; }
-        Color color;
+        protected Color color;
         float rotation;
         Vector2 origin;
         Vector2 scale;

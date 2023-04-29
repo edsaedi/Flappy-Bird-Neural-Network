@@ -10,6 +10,7 @@ namespace Flappy_Bird_Neural_Network
 {
     public class Bird : SpriteBase
     {
+        private float initialYPosition;
         private int currentIndex = 0;
         Rectangle?[] sourceRectangles;
 
@@ -24,6 +25,7 @@ namespace Flappy_Bird_Neural_Network
             this.sourceRectangles = sourceRectangle;
             verticalVelocity = 0;
             this.birdFlapTime = birdFlapTime;
+            this.initialYPosition = position.Y;
         }
 
         protected override Rectangle? sourceRectangle { get => sourceRectangles[currentIndex]; }
@@ -74,6 +76,11 @@ namespace Flappy_Bird_Neural_Network
         public bool Collide(Rectangle objectHitbox)
         {
             return hitbox.Intersects(objectHitbox);
+        }
+
+        public void ResetPosition()
+        {
+            position.Y = initialYPosition;
         }
     }
 }
