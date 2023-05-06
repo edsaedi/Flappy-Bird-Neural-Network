@@ -29,9 +29,9 @@ namespace Flappy_Bird_Neural_Network
 
         //Labels
         private Sprite gameOverLabel;
-        private List<Sprite> scoreLabel;
+        private List<SpriteLabel> scoreLabel;
         private Rectangle[] scoreDigits;
-
+        private SpriteLabel[] scoreSprites;
 
         private Texture2D spriteSheet;
 
@@ -128,16 +128,24 @@ namespace Flappy_Bird_Neural_Network
 
             scoreDigits = new Rectangle[] {
                 new Rectangle(1736, 210, 42, 63),
-                new Rectangle(476, 1592, 28, 78),
-                new Rectangle(1071, 644, 42, 63),
-                new Rectangle(1120, 644, 42, 63),
-                new Rectangle(1169, 644, 42, 63),
+                new Rectangle(476, 1592, 28, 63),
+                new Rectangle(1022, 560, 42, 63),
+                new Rectangle(1071, 560, 42, 63),
+                new Rectangle(1120, 560, 42, 63),
                 new Rectangle(1169, 560, 42, 63),
                 new Rectangle(1022, 644, 42, 63),
                 new Rectangle(1071, 644, 42, 63),
                 new Rectangle(1120, 644, 42, 63),
                 new Rectangle(1169, 644, 42, 63)
             };
+
+            scoreSprites = new SpriteLabel[scoreDigits.Length];
+            for (int i = 0; i < scoreSprites.Length; i++)
+            {
+                scoreSprites[i] = new SpriteLabel(spriteSheet, Vector2.Zero, scoreDigits[i], Vector2.One);
+            }
+
+            scoreLabel = new List<SpriteLabel>();
         }
 
 
@@ -303,7 +311,7 @@ namespace Flappy_Bird_Neural_Network
 
 
             _spriteBatch.DrawString(spriteFont, score.ToString(), new Vector2(10, 10), Color.Black);
-
+            DisplayScore();
 
             _spriteBatch.End();
             base.Draw(gameTime);
@@ -341,14 +349,42 @@ namespace Flappy_Bird_Neural_Network
             pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
             pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
             selectedBird.ResetPosition();
-            score = 0;
+            score = 10;
             passedPipe1 = false;
             passedPipe2 = false;
         }
 
         public void DisplayScore()
         {
+            scoreLabel.Clear();
+            string scoreString = score.ToString();
+            foreach (char character in scoreString)
+            {
+                //Converts the character into an ascii value that is then shifted to give me the correct index
+                int index = character - '0';
+                scoreLabel.Add(scoreSprites[index]);
+            }
 
+            int amountOfDigits = (int)Math.Log10(score) + 1;
+            if(score == 0)
+            {
+                amountOfDigits = 1;
+            }
+
+            if (amountOfDigits == 1)
+            {
+                scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width - scoreLabel[0].hitbox.Width) / 2, 25));
+            }
+            else if (amountOfDigits == 2)
+            {
+                scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) - scoreLabel[0].hitbox.Width - 2, 25));
+                scoreLabel[1].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, 25));
+            }
+
+            foreach (var label in scoreLabel)
+            {
+                label.Draw(_spriteBatch);
+            }
         }
     }
 }
