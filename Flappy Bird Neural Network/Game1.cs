@@ -42,7 +42,7 @@ namespace Flappy_Bird_Neural_Network
         private int floorYValue = 525;
         private int bufferHeight = 110;
 
-        private int score = 0;
+        private int score;
         private bool passedPipe1 = false;
         private bool passedPipe2 = false;
 
@@ -140,10 +140,6 @@ namespace Flappy_Bird_Neural_Network
             };
 
             scoreSprites = new SpriteLabel[scoreDigits.Length];
-            for (int i = 0; i < scoreSprites.Length; i++)
-            {
-                scoreSprites[i] = new SpriteLabel(spriteSheet, Vector2.Zero, scoreDigits[i], Vector2.One);
-            }
 
             scoreLabel = new List<SpriteLabel>();
         }
@@ -349,7 +345,7 @@ namespace Flappy_Bird_Neural_Network
             pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
             pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
             selectedBird.ResetPosition();
-            score = 10;
+            score = 1000;
             passedPipe1 = false;
             passedPipe2 = false;
         }
@@ -362,16 +358,35 @@ namespace Flappy_Bird_Neural_Network
             {
                 //Converts the character into an ascii value that is then shifted to give me the correct index
                 int index = character - '0';
-                scoreLabel.Add(scoreSprites[index]);
+                scoreLabel.Add(new SpriteLabel(spriteSheet, Vector2.Zero, scoreDigits[index], Vector2.One));
             }
 
             int amountOfDigits = (int)Math.Log10(score) + 1;
-            if(score == 0)
+            if (score == 0)
             {
                 amountOfDigits = 1;
             }
 
-            if (amountOfDigits == 1)
+            const int gap = 5;
+            const int yPosition = 25;
+
+            float sumX = 0;
+            for (int i = 0; i < amountOfDigits; i++)
+            {
+                sumX += scoreLabel[i].hitbox.Width;
+            }
+
+            float boundingSize = sumX + (gap * (amountOfDigits - 1));
+            float boundingLeft = (GraphicsDevice.Viewport.Width / 2) - (boundingSize / 2);
+
+            float previousX = boundingLeft;
+            for (int i = 0; i < amountOfDigits; i++)
+            {
+                scoreLabel[i].SetPosition(new Vector2(previousX, yPosition));
+                previousX += (gap + scoreLabel[i].hitbox.Width);
+            }
+
+            /*if (amountOfDigits == 1)
             {
                 scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width - scoreLabel[0].hitbox.Width) / 2, 25));
             }
@@ -379,7 +394,7 @@ namespace Flappy_Bird_Neural_Network
             {
                 scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) - scoreLabel[0].hitbox.Width - 2, 25));
                 scoreLabel[1].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, 25));
-            }
+            }*/
 
             foreach (var label in scoreLabel)
             {
