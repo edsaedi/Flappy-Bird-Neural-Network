@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NeuralNetwork;
 
 namespace Flappy_Bird_Neural_Network
 {
@@ -48,10 +49,8 @@ namespace Flappy_Bird_Neural_Network
 
         private Button restartButton;
 
-
         //Testing spriteFont
         private SpriteFont spriteFont;
-
 
         public Game1()
         {
@@ -345,7 +344,7 @@ namespace Flappy_Bird_Neural_Network
             pipes[0] = PairedPipeGenerator(3, (GraphicsDevice.Viewport.Width / 2) * 3);
             pipes[1] = PairedPipeGenerator(6, (GraphicsDevice.Viewport.Width / 2) * 4 + 25);
             selectedBird.ResetPosition();
-            score = 1000;
+            score = 0;
             passedPipe1 = false;
             passedPipe2 = false;
         }
@@ -385,16 +384,6 @@ namespace Flappy_Bird_Neural_Network
                 scoreLabel[i].SetPosition(new Vector2(previousX, yPosition));
                 previousX += (gap + scoreLabel[i].hitbox.Width);
             }
-
-            /*if (amountOfDigits == 1)
-            {
-                scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width - scoreLabel[0].hitbox.Width) / 2, 25));
-            }
-            else if (amountOfDigits == 2)
-            {
-                scoreLabel[0].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) - scoreLabel[0].hitbox.Width - 2, 25));
-                scoreLabel[1].SetPosition(new Vector2((GraphicsDevice.Viewport.Width / 2) + 2, 25));
-            }*/
 
             foreach (var label in scoreLabel)
             {
