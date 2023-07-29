@@ -390,5 +390,10 @@ namespace Flappy_Bird_Neural_Network
                 label.Draw(_spriteBatch);
             }
         }
+
+        public static void RunTraining()
+        {
+            NeuralNetwork.NeuralNetwork network = new NeuralNetwork.NeuralNetwork(NeuralNetwork.ActivationAndErrorFunctions.TanHActivationFunction, NeuralNetwork.ActivationAndErrorFunctions.MeanSqauredErrorFunction, 2, 4, 1);
+        }
     }
 }
